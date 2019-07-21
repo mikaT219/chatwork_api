@@ -29,7 +29,7 @@ function getMessage() {
   var ss = SpreadsheetApp.getActive().getSheetByName('シート1');
   for each(var data in dataArr) {
     //log
-  　Logger.log(data.body);
+  　Logger.log(data);
     //unixtime>jst
     var d = new Date( data.send_time * 1000 );
     var year  = d.getFullYear();
@@ -41,8 +41,6 @@ function getMessage() {
     var send_time = ( year + '-' + month + '-' + day + ' ' + hour + ':' + min + ':' + sec );
     //spreadsheet
     ss.appendRow([send_time,data.account.name,data.body]);    
-  }
-  
+  } 
   Browser.msgBox("fin")
-  
 }
