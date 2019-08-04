@@ -23,24 +23,26 @@ function getMessage() {
   // 結果が存在した場合、json形式で取得した結果をparseする
   if (res != "") {
     var dataArr = JSON.parse(res.getContentText()); 
+    //シートを追加する
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    ss.insertSheet();
+    for each(var data in dataArr) {
+      //log
+      Logger.log(data);
+      //unixtime>jst
+      var d = new Date( data.send_time * 1000 );
+      var year  = d.getFullYear();
+      var month = d.getMonth() + 1;
+      var day  = d.getDate();
+      var hour = ( d.getHours()   < 10 ) ? '0' + d.getHours()   : d.getHours();
+      var min  = ( d.getMinutes() < 10 ) ? '0' + d.getMinutes() : d.getMinutes();
+      var sec   = ( d.getSeconds() < 10 ) ? '0' + d.getSeconds() : d.getSeconds();
+      var send_time = ( year + '-' + month + '-' + day + ' ' + hour + ':' + min + ':' + sec );
+      //spreadsheet
+      ss.appendRow([send_time,data.account.name,data.body]);    
+    }     
   }
 
-  // 出力
-  var ss = SpreadsheetApp.getActive().getSheetByName('シート1');
-  for each(var data in dataArr) {
-    //log
-  　Logger.log(data);
-    //unixtime>jst
-    var d = new Date( data.send_time * 1000 );
-    var year  = d.getFullYear();
-    var month = d.getMonth() + 1;
-    var day  = d.getDate();
-    var hour = ( d.getHours()   < 10 ) ? '0' + d.getHours()   : d.getHours();
-    var min  = ( d.getMinutes() < 10 ) ? '0' + d.getMinutes() : d.getMinutes();
-    var sec   = ( d.getSeconds() < 10 ) ? '0' + d.getSeconds() : d.getSeconds();
-    var send_time = ( year + '-' + month + '-' + day + ' ' + hour + ':' + min + ':' + sec );
-    //spreadsheet
-    ss.appendRow([send_time,data.account.name,data.body]);    
-  } 
+
   Browser.msgBox("fin")
 }
