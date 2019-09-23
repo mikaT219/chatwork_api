@@ -7,9 +7,9 @@ function getMessage() {
   var apiToken = "3f3cdc86a0e2a18b772925da35eebe96";
 
   // api url
-  //force=0　追加メッセージ取得
-  //force=1　全メッセージ取得　
   var url = "https://api.chatwork.com/v2/rooms/" + roomID + "/messages?force=1";
+  //force=0　追加メッセージ取得
+  //force=1　全メッセージ取得　  
 
   // apiに渡すパラメータを設定
   var params = {
@@ -26,22 +26,26 @@ function getMessage() {
     
     //日付を確認する    
     var date = String(Utilities.formatDate(new Date(), "JST", "yyyyMMdd"));
-    //日付変わったテスト
-    //var date = "20191001";    
-    //アクティブなシートを取得
+    Logger.log('date:' + date)
+
+    //アクティブなスプレッドシートを取得
     var ss = SpreadsheetApp.getActiveSpreadsheet();
     
-    //シート名を取得する--要：アクティブシートの名前を取得してしまうのでシート数取得して最終シートの名前を取得するに変更
-    var ssname = ss.getSheetName();   
-    Logger.log('ssname:' + ssname);
+    //シート数を取得する
+    var num = ss.getNumSheets();
+
+    //一番右のシートをアクティブ化する
+    ss.setActiveSheet(ss.getSheets()[num]-1); 
     
-    //日付を比較して日付が異なればシート追加+インデックス追記
+    //アクティブなシート名を取得する 
+    var ssname = ss.getSheetName(); 
+    
+    //日付を比較して日付が異なればシート追加かつインデックス追記
     if (date != ssname) {    
       ss.insertSheet();
       ss.renameActiveSheet(date);
 
-      // ハイパーリンクをインデックスシートに追記
-      //ソース／https://qiita.com/okNirvy/items/d1a2f4918cff8e63dcac
+      // ハイパーリンクをインデックスシートに追記／https://qiita.com/okNirvy/items/d1a2f4918cff8e63dcac
       var sheets = SpreadsheetApp.getActive().getSheets();
       var ssId = SpreadsheetApp.getActive().getId();
       
@@ -78,26 +82,23 @@ function getMessage() {
       var min  = ( d.getMinutes() < 10 ) ? '0' + d.getMinutes() : d.getMinutes();
       var sec   = ( d.getSeconds() < 10 ) ? '0' + d.getSeconds() : d.getSeconds();
       var send_time = ( year + '-' + month + '-' + day + ' ' + hour + ':' + min + ':' + sec );
-      ss.appendRow([send_time,data.account.name,data.body]);      
+      ss.appendRow([send_time,data.account.name,data.body]);             
     }    
   }
-
-  Browser.msgBox("fin")
 }
 
 //大量シートを消す
 function deletesheet() {
-   var ash = SpreadsheetApp.getActiveSpreadsheet(); //アクティブなスプレッドlシートを取得 
-   var cnt = ash.getNumSheets(); //アクティブなスプレッドシートのシート数を取得
+   var cnt = ss.getNumSheets(); //アクティブなスプレッドシートのシート数を取得
    Logger.log(cnt);
-   var sheet = ash.getSheetByName('インデックス'); //残したいシートが存在するスプレッドシートを定義
+   var sheet = ss.getSheetByName('Index'); //残したいシートが存在するスプレッドシートを定義
    SpreadsheetApp.setActiveSheet(sheet); //指定したシート名をアクティブシートにする
    
   　for(var i = cnt;　i >= 2; i--){ 
      //初期値の変数iはシート数を表す変数cnt、iをｰ1していき2以上の間は処理を繰り返し
-     var sh = ash.getSheets()[i-1];　//アクティブなスプレッドシートに存在するシートを、[i-1]により配列の要素数で指定して取得し、変数shに代入
+     var sh = ss.getSheets()[i-1];　//アクティブなスプレッドシートに存在するシートを、[i-1]により配列の要素数で指定して取得し、変数shに代入
      Logger.log(sh);     
-     ash.deleteSheet(sh); //シート削除　
+     ss.deleteSheet(sh); //シート削除　
    } 
  }
 
